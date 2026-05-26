@@ -64,9 +64,20 @@ export default function IoTCarDashboard() {
 
   const [ultimosObstaculos, setUltimosObstaculos] = React.useState([]); 
   // =========================================
+// DEMOS
+// =========================================
+
+const [nombreDemo, setNombreDemo] =
+  React.useState("");
+
+const [secuenciaDemo, setSecuenciaDemo] =
+  React.useState("");
+
+const [demosGuardadas, setDemosGuardadas] =
+  React.useState([]);
+  // =========================================
   // MOVIMIENTOS
   // =========================================
-
   const movimientos = [
 
     {
@@ -290,6 +301,7 @@ export default function IoTCarDashboard() {
     const intervalo = setInterval(() => {
 
       obtenerTelemetria();
+      cargarUltimosObstaculos();
 
     }, 1000);
 
@@ -359,36 +371,131 @@ export default function IoTCarDashboard() {
   }, [movimientoSeleccionado]);
 
   // =========================================
-  // EJECUTAR MOVIMIENTO
-  // =========================================
+// EJECUTAR MOVIMIENTO
+// =========================================
 
-  const ejecutarMovimiento = async (idMovimiento) => {
+const ejecutarMovimiento = async (idMovimiento) => {
 
-    try {
+  try {
 
-      await fetch(
-        `${apiUrl}/api/movimiento`,
-        {
-          method: "POST",
+    await fetch(
+      `${apiUrl}/api/movimiento`,
+      {
+        method: "POST",
 
-          headers: {
-            "Content-Type": "application/json"
-          },
+        headers: {
+          "Content-Type": "application/json"
+        },
 
-          body: JSON.stringify({
-            id_movimiento: idMovimiento,
-            id_dispositivo: 1
-          })
-        }
-      );
+        body: JSON.stringify({
+          id_movimiento: idMovimiento,
+          id_dispositivo: 1
+        })
+      }
+    );
 
-    } catch (error) {
+  } catch (error) {
 
-      console.log(error);
+    console.log(error);
+
+  }
+
+};
+
+// =========================================
+// GUARDAR DEMO
+// =========================================
+
+const guardarDemo = async () => {
+
+  try {
+
+    if(!nombreDemo || !secuenciaDemo){
+
+      alert("Completa nombre y secuencia");
+
+      return;
 
     }
 
-  };
+    const response = await fetch(
+
+      `${apiUrl}/api/crear_demo`,
+
+      {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+          nombre: nombreDemo,
+
+          secuencia: secuenciaDemo
+
+        })
+
+      }
+
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    alert("Demo guardada en MySQL 😎");
+
+    setNombreDemo("");
+
+    setSecuenciaDemo("");
+
+  } catch(error) {
+
+    console.log(error);
+
+  }
+
+};
+
+// =========================================
+// EJECUTAR DEMO
+// =========================================
+const ejecutarDemo = async () => {
+
+  try {
+
+    const response = await fetch(
+
+      `${apiUrl}/api/ver_demo_detalle/1`
+
+    );
+
+    const data = await response.json();
+
+    for (const movimiento of data) {
+
+      await ejecutarMovimiento(
+
+        movimiento.id_movimiento
+
+      );
+
+      await new Promise(resolve =>
+        setTimeout(resolve, 1500)
+      );
+
+    }
+
+  } catch(error) {
+
+    console.log(error);
+
+  }
+
+};
     // =========================================
   // RETURN
   // =========================================
@@ -464,91 +571,7 @@ export default function IoTCarDashboard() {
           </div>
 
         </div>
-       {/* HISTORIAL OBSTACULOS */}
 
-          <div className="
-            rounded-3xl
-            border
-            border-red-500
-            p-6
-            bg-zinc-950
-            shadow-2xl
-            shadow-red-500/20
-            overflow-x-auto
-            mt-10
-          ">
-
-            <h2 className="
-              text-3xl
-              font-bold
-              text-red-400
-              mb-6
-            ">
-              Historial Obstáculos
-            </h2>
-
-            <table className="w-full">
-
-              <thead>
-
-                <tr className="
-                  text-red-300
-                  border-b
-                  border-red-700
-                ">
-
-                  <th className="p-3 text-left">
-                    ID
-                  </th>
-
-                  <th className="p-3 text-left">
-                    Estatus
-                  </th>
-
-                  <th className="p-3 text-left">
-                    Fecha
-                  </th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {ultimosObstaculos.map((obs, index) => (
-
-                  <tr
-                    key={index}
-
-                    className="
-                      border-b
-                      border-red-900
-                      hover:bg-red-500/10
-                      transition-all
-                    "
-                  >
-
-                    <td className="p-3">
-                      {obs.id_obs}
-                    </td>
-
-                    <td className="p-3 text-red-300 font-bold">
-                      {obs.estatus}
-                    </td>
-
-                    <td className="p-3">
-                      {obs.fecha}
-                    </td>
-
-                  </tr>
-
-                ))}
-
-              </tbody>
-
-            </table>
-
-            </div>
         {/* GRID PRINCIPAL */}
 
         <div className="grid lg:grid-cols-4 gap-6">
@@ -631,12 +654,145 @@ export default function IoTCarDashboard() {
                 </motion.button>
 
               ))}
+          <motion.button
+
+            onClick={() => ejecutarDemo()}
+
+            whileHover={{
+              scale: 1.07
+            }}
+
+            whileTap={{
+              scale: 0.95
+            }}
+
+            className="
+              rounded-3xl
+              border
+              border-yellow-300
+              bg-gradient-to-br
+              from-yellow-500
+              to-orange-700
+              transition-all
+              p-6
+              shadow-xl
+              shadow-yellow-500/30
+              text-left
+            "
+          >
+
+            <div className="text-7xl">
+              🤖
+            </div>
+
+            <div className="mt-4 text-5xl font-bold text-white">
+              DEMO
+            </div>
+
+            <div className="mt-4 text-xl font-semibold">
+              Ejecutar Demo
+            </div>
+
+          </motion.button>
 
             </div>
+            {/* CONFIG DEMO */}
+
+<div className="
+  rounded-3xl
+  border
+  border-yellow-400
+  p-6
+  bg-zinc-950
+  shadow-2xl
+  shadow-yellow-500/20
+  mt-10
+">
+
+  <h2 className="
+    text-3xl
+    font-bold
+    text-yellow-300
+    mb-6
+  ">
+    Configuración Demo
+  </h2>
+
+  <div className="
+    grid
+    md:grid-cols-3
+    gap-4
+  ">
+
+    {/* NOMBRE */}
+
+    <input
+      type="text"
+
+      value={nombreDemo}
+
+      onChange={(e) =>
+        setNombreDemo(e.target.value)
+      }
+
+      placeholder="Nombre demo"
+
+      className="
+        bg-black
+        border
+        border-yellow-500
+        rounded-2xl
+        p-4
+        text-white
+      "
+    />
+
+    {/* SECUENCIA */}
+
+      <input
+      type="text"
+
+      value={secuenciaDemo}
+
+      onChange={(e) =>
+        setSecuenciaDemo(e.target.value)
+      }
+
+      placeholder="1,1,8,1,3"
+
+      className="
+        bg-black
+        border
+        border-yellow-500
+        rounded-2xl
+        p-4
+        text-white
+      "
+    />
+
+    {/* BOTON */}
+
+    <button
+     onClick={guardarDemo}
+      className="
+        bg-yellow-500
+        hover:bg-yellow-400
+        text-black
+        font-bold
+        rounded-2xl
+        p-4
+        transition-all
+      "
+    >
+      Guardar Demo
+    </button>
+
+  </div>
+
+</div>
                 {/* HISTORIALES */}
 
-<div className="mt-35 space-y-10">
-
+<div className="mt-10 space-y-10">
   
   {/* HISTORIAL CONFIG */}
 
@@ -758,11 +914,97 @@ export default function IoTCarDashboard() {
                 </table>
 
               </div>
+              
 
               </div>
+          
+                   {/* HISTORIAL OBSTACULOS */}
 
+          <div className="
+            rounded-3xl
+            border
+            border-red-500
+            p-6
+            bg-zinc-950
+            shadow-2xl
+            shadow-red-500/20
+            overflow-x-auto
+            mt-10
+          ">
+
+            <h2 className="
+              text-3xl
+              font-bold
+              text-red-400
+              mb-6
+            ">
+              Historial Obstáculos
+            </h2>
+
+            <table className="w-full">
+
+              <thead>
+
+                <tr className="
+                  text-red-300
+                  border-b
+                  border-red-700
+                ">
+
+                  <th className="p-3 text-left">
+                    ID
+                  </th>
+
+                  <th className="p-3 text-left">
+                    Estatus
+                  </th>
+
+                  <th className="p-3 text-left">
+                    Fecha
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {ultimosObstaculos.map((obs, index) => (
+
+                  <tr
+                    key={index}
+
+                    className="
+                      border-b
+                      border-red-900
+                      hover:bg-red-500/10
+                      transition-all
+                    "
+                  >
+
+                    <td className="p-3">
+                      {obs.id_obs}
+                    </td>
+
+                    <td className="p-3 text-red-300 font-bold">
+                      {obs.estatus}
+                    </td>
+
+                    <td className="p-3">
+                      {obs.fecha}
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+            </div>
           </div>
-
+           
           {/* PANEL DERECHO */}
 
           <div className="space-y-6">
@@ -826,7 +1068,7 @@ export default function IoTCarDashboard() {
             <div className="rounded-3xl border border-cyan-500 bg-zinc-950 p-5 shadow-2xl shadow-cyan-500/20 h-fit">
 
               <h2 className="text-2xl font-bold text-cyan-400 mb-5">
-                Control de velocidad y tiempo.
+                Control de Velocidad y Tiempo
               </h2>
                             {/* MOVIMIENTO */}
 

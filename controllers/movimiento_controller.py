@@ -1,4 +1,5 @@
 from flask import request, jsonify
+
 from models.movimiento_model import MovimientoModel
 
 class MovimientoController:
@@ -6,57 +7,148 @@ class MovimientoController:
     # =========================================
     # AGREGAR MOVIMIENTO
     # =========================================
+
     @staticmethod
     def agregar_movimiento():
 
-        data = request.json
+        data = request.get_json()
 
-        response = MovimientoModel.agregar_movimiento(
-            data["id_movimiento"],
-            data["id_dispositivo"]
+        id_movimiento = data.get(
+            "id_movimiento"
         )
 
-        return jsonify(response)
+        id_dispositivo = data.get(
+            "id_dispositivo"
+        )
+
+        result = MovimientoModel.agregar_movimiento(
+
+            id_movimiento,
+
+            id_dispositivo
+
+        )
+
+        return jsonify(result)
 
     # =========================================
     # ULTIMO MOVIMIENTO
     # =========================================
+
     @staticmethod
     def ultimo_movimiento():
 
-        response = MovimientoModel.ultimo_movimiento()
+        result = MovimientoModel.ultimo_movimiento()
 
-        return jsonify(response)
+        return jsonify(result)
 
     # =========================================
     # ACTUALIZAR MOTOR
     # =========================================
+
     @staticmethod
     def actualizar_motor():
 
-        data = request.json
+        data = request.get_json()
 
-        response = MovimientoModel.actualizar_motor(
-        
-        data["id_movimiento"],
-        data["nuevo_MIA"],
-        data["nuevo_MIB"],
-        data["nuevo_MITime"],
-        data["nuevo_MDA"],
-        data["nuevo_MDB"],
-        data["nuevo_MDTime"]
+        result = MovimientoModel.actualizar_motor(
+
+            data.get("id_movimiento"),
+
+            data.get("nuevo_MIA"),
+            data.get("nuevo_MIB"),
+            data.get("nuevo_MITime"),
+
+            data.get("nuevo_MDA"),
+            data.get("nuevo_MDB"),
+            data.get("nuevo_MDTime")
+
         )
 
-        return jsonify(response)
+        return jsonify(result)
 
     # =========================================
     # VER CONFIG MOTOR
     # =========================================
+
     @staticmethod
     def ver_config_motor(id_movimiento):
 
-        response = MovimientoModel.ver_config_motor(
+        result = MovimientoModel.ver_config_motor(
             id_movimiento
         )
 
-        return jsonify(response)
+        return jsonify(result)
+
+    # =========================================
+    # CREAR DEMO
+    # =========================================
+
+    @staticmethod
+    def crear_demo():
+
+        data = request.get_json()
+
+        nombre = data.get("nombre")
+
+        secuencia = data.get("secuencia")
+
+        # CREAR DEMO
+
+        MovimientoModel.crear_demo(nombre)
+
+        demos = MovimientoModel.ver_demos()
+
+        ultimo_demo = demos[0]
+
+        id_demo = ultimo_demo["id_demo"]
+
+        movimientos = secuencia.split(",")
+
+        orden = 1
+
+        for mov in movimientos:
+
+            MovimientoModel.agregar_movimiento_demo(
+
+                id_demo,
+
+                int(mov),
+
+                orden
+
+            )
+
+            orden += 1
+
+        return jsonify({
+
+            "status": True,
+
+            "message": "Demo creada"
+
+        })
+
+    # =========================================
+    # VER DEMOS
+    # =========================================
+
+    @staticmethod
+    def ver_demos():
+
+        result = MovimientoModel.ver_demos()
+
+        return jsonify(result)
+
+    # =========================================
+    # VER DETALLE DEMO
+    # =========================================
+
+    @staticmethod
+    def ver_demo_detalle(id_demo):
+
+        result = MovimientoModel.ver_demo_detalle(
+            id_demo
+        )
+
+        return jsonify(result)

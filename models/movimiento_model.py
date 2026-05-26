@@ -40,7 +40,6 @@ class MovimientoModel:
 
             connection.close()
 
-
     # =========================================
     # ULTIMO MOVIMIENTO
     # =========================================
@@ -72,7 +71,6 @@ class MovimientoModel:
         finally:
 
             connection.close()
-
 
     # =========================================
     # ACTUALIZAR MOTOR
@@ -143,7 +141,6 @@ class MovimientoModel:
 
             connection.close()
 
-
     # =========================================
     # VER CONFIG MOTOR
     # =========================================
@@ -175,7 +172,6 @@ class MovimientoModel:
         finally:
 
             connection.close()
-
 
     # =========================================
     # ACTUALIZAR CONFIG MOTOR
@@ -237,6 +233,160 @@ class MovimientoModel:
                     "status": True,
                     "message": "Configuración actualizada"
                 }
+
+        except Exception as e:
+
+            return {
+                "status": False,
+                "error": str(e)
+            }
+
+        finally:
+
+            connection.close()
+
+    # =========================================
+    # CREAR DEMO
+    # =========================================
+
+    @staticmethod
+    def crear_demo(nombre):
+
+        connection = Database.get_connection()
+
+        try:
+
+            with connection.cursor() as cursor:
+
+                sql = """
+                CALL sp_crear_demo(%s)
+                """
+
+                cursor.execute(sql, (nombre,))
+
+                connection.commit()
+
+                return {
+                    "status": True
+                }
+
+        except Exception as e:
+
+            return {
+                "status": False,
+                "error": str(e)
+            }
+
+        finally:
+
+            connection.close()
+
+    # =========================================
+    # AGREGAR MOVIMIENTO DEMO
+    # =========================================
+
+    @staticmethod
+    def agregar_movimiento_demo(
+
+        id_demo,
+        id_movimiento,
+        orden_demo
+
+    ):
+
+        connection = Database.get_connection()
+
+        try:
+
+            with connection.cursor() as cursor:
+
+                sql = """
+                CALL sp_agregar_movimiento_demo(
+                    %s,
+                    %s,
+                    %s
+                )
+                """
+
+                cursor.execute(sql, (
+
+                    id_demo,
+                    id_movimiento,
+                    orden_demo
+
+                ))
+
+                connection.commit()
+
+                return {
+                    "status": True
+                }
+
+        except Exception as e:
+
+            return {
+                "status": False,
+                "error": str(e)
+            }
+
+        finally:
+
+            connection.close()
+
+    # =========================================
+    # VER DEMOS
+    # =========================================
+
+    @staticmethod
+    def ver_demos():
+
+        connection = Database.get_connection()
+
+        try:
+
+            with connection.cursor() as cursor:
+
+                sql = "CALL sp_ver_demos()"
+
+                cursor.execute(sql)
+
+                result = cursor.fetchall()
+
+                return result
+
+        except Exception as e:
+
+            return {
+                "status": False,
+                "error": str(e)
+            }
+
+        finally:
+
+            connection.close()
+
+    # =========================================
+    # VER DETALLE DEMO
+    # =========================================
+
+    @staticmethod
+    def ver_demo_detalle(id_demo):
+
+        connection = Database.get_connection()
+
+        try:
+
+            with connection.cursor() as cursor:
+
+                sql = """
+                CALL sp_ver_demo_detalle(%s)
+                """
+
+                cursor.execute(sql, (id_demo,))
+
+                result = cursor.fetchall()
+
+                return result
 
         except Exception as e:
 

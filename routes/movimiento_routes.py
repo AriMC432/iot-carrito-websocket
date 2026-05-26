@@ -40,3 +40,29 @@ movimiento_routes.route(
     "/api/ver_config_motor/<int:id_movimiento>",
     methods=["GET"]
 )(MovimientoController.ver_config_motor)
+# =========================================
+# CREAR DEMO
+# =========================================
+
+movimiento_routes.route(
+    "/api/crear_demo",
+    methods=["POST"]
+)(MovimientoController.crear_demo)
+
+# =========================================
+# VER DEMOS
+# =========================================
+
+movimiento_routes.route(
+    "/api/ver_demos",
+    methods=["GET"]
+)(MovimientoController.ver_demos)
+
+# =========================================
+# VER DETALLE DEMO
+# =========================================
+
+movimiento_routes.route(
+    "/api/ver_demo_detalle/<int:id_demo>",
+    methods=["GET"]
+)(MovimientoController.ver_demo_detalle)
