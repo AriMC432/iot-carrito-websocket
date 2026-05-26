@@ -6,11 +6,10 @@ export default function IoTCarDashboard() {
   // API URL
   // =========================================
 
-  const [apiUrl, setApiUrl] = React.useState(
- "http://192.168.1.126:5000");
-/* const [apiUrl, setApiUrl] = React.useState(
-    "http://44.195.251.64:5000"
-  ); */
+
+    const [apiUrl, setApiUrl] = React.useState(
+    "http://192.168.137.1:5000"
+  );
   // =========================================
   // CONFIG MOTOR
   // =========================================
@@ -192,11 +191,11 @@ export default function IoTCarDashboard() {
 
       const response = await fetch(
 
-        `${apiUrl}/api/config_motor`,
+        `${apiUrl}/api/actualizar_motor`,
 
         {
 
-          method: "POST",
+          method: "PUT",
 
           headers: {
             "Content-Type": "application/json"
@@ -206,13 +205,13 @@ export default function IoTCarDashboard() {
 
             id_movimiento: movimientoSeleccionado,
 
-            MIA: configMotor.MIA,
-            MIB: configMotor.MIB,
-            MITime: configMotor.MITime,
+            nuevo_MIA: configMotor.MIA,
+            nuevo_MIB: configMotor.MIB,
+            nuevo_MITime: configMotor.MITime,
 
-            MDA: configMotor.MDA,
-            MDB: configMotor.MDB,
-            MDTime: configMotor.MDTime
+            nuevo_MDA: configMotor.MDA,
+            nuevo_MDB: configMotor.MDB,
+            nuevo_MDTime: configMotor.MDTime
 
           })
 
@@ -222,7 +221,7 @@ export default function IoTCarDashboard() {
 
       await response.json();
 
-      alert("Configuración guardada 😎🔥");
+      alert("Configuración guardada 😎");
 
       setCamposModificados({});
 
@@ -838,7 +837,7 @@ export default function IoTCarDashboard() {
                 Guardar Configuración
               </button>
 
-                          </div>
+            </div>
 
         
 
