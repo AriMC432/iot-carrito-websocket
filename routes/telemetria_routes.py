@@ -53,3 +53,11 @@ from controllers.telemetria_controller import TelemetriaController
 def registrar_obstaculo():
 
     return TelemetriaController.registrar_obstaculo()
+
+@telemetria_routes.route(
+    "/api/ultimos_obstaculos",
+    methods=["GET"]
+)
+def ultimos_obstaculos():
+
+    return TelemetriaController.ultimos_obstaculos()

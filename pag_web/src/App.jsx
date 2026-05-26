@@ -62,6 +62,7 @@ export default function IoTCarDashboard() {
   const [camposModificados, setCamposModificados] =
     React.useState({});
 
+  const [ultimosObstaculos, setUltimosObstaculos] = React.useState([]); 
   // =========================================
   // MOVIMIENTOS
   // =========================================
@@ -258,7 +259,32 @@ export default function IoTCarDashboard() {
       }
 
     };
+    const cargarUltimosObstaculos = async () => {
 
+  try {
+
+    const response = await fetch(
+
+      `${apiUrl}/api/ultimos_obstaculos`
+
+    );
+
+    const data = await response.json();
+
+    if(data.status){
+
+      setUltimosObstaculos(data.data);
+
+    }
+
+  } catch(error){
+
+    console.log(error);
+
+  }
+
+};
+    cargarUltimosObstaculos();
     obtenerTelemetria();
 
     const intervalo = setInterval(() => {
@@ -438,7 +464,91 @@ export default function IoTCarDashboard() {
           </div>
 
         </div>
+       {/* HISTORIAL OBSTACULOS */}
 
+          <div className="
+            rounded-3xl
+            border
+            border-red-500
+            p-6
+            bg-zinc-950
+            shadow-2xl
+            shadow-red-500/20
+            overflow-x-auto
+            mt-10
+          ">
+
+            <h2 className="
+              text-3xl
+              font-bold
+              text-red-400
+              mb-6
+            ">
+              Historial Obstáculos
+            </h2>
+
+            <table className="w-full">
+
+              <thead>
+
+                <tr className="
+                  text-red-300
+                  border-b
+                  border-red-700
+                ">
+
+                  <th className="p-3 text-left">
+                    ID
+                  </th>
+
+                  <th className="p-3 text-left">
+                    Estatus
+                  </th>
+
+                  <th className="p-3 text-left">
+                    Fecha
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {ultimosObstaculos.map((obs, index) => (
+
+                  <tr
+                    key={index}
+
+                    className="
+                      border-b
+                      border-red-900
+                      hover:bg-red-500/10
+                      transition-all
+                    "
+                  >
+
+                    <td className="p-3">
+                      {obs.id_obs}
+                    </td>
+
+                    <td className="p-3 text-red-300 font-bold">
+                      {obs.estatus}
+                    </td>
+
+                    <td className="p-3">
+                      {obs.fecha}
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+            </div>
         {/* GRID PRINCIPAL */}
 
         <div className="grid lg:grid-cols-4 gap-6">
@@ -716,7 +826,7 @@ export default function IoTCarDashboard() {
             <div className="rounded-3xl border border-cyan-500 bg-zinc-950 p-5 shadow-2xl shadow-cyan-500/20 h-fit">
 
               <h2 className="text-2xl font-bold text-cyan-400 mb-5">
-                Configuración Motor
+                Control de velocidad y tiempo.
               </h2>
                             {/* MOVIMIENTO */}
 
@@ -775,7 +885,12 @@ export default function IoTCarDashboard() {
 
                   <input
                     type="number"
-
+                    disabled={
+                        campo === "MIA" ||
+                        campo === "MIB" ||
+                        campo === "MDA" ||
+                        campo === "MDB"
+                      }
                     value={configMotor[campo]}
 
                     onChange={(e) => {

@@ -54,3 +54,42 @@ class TelemetriaController:
         finally:
 
             connection.close()
+
+        # =========================================
+    # ULTIMOS OBSTACULOS
+    # =========================================
+
+    @staticmethod
+    def ultimos_obstaculos():
+
+        connection = Database.get_connection()
+
+        try:
+
+            with connection.cursor() as cursor:
+
+                sql = "CALL sp_ultimos_obstaculos()"
+
+                cursor.execute(sql)
+
+                result = cursor.fetchall()
+
+                return jsonify({
+
+                    "status": True,
+                    "data": result
+
+                })
+
+        except Exception as e:
+
+            return jsonify({
+
+                "status": False,
+                "error": str(e)
+
+            })
+
+        finally:
+
+            connection.close()
