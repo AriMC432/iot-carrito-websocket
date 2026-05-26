@@ -42,3 +42,14 @@ def obtener_telemetria():
         "websocket": "CONECTADO"
 
     })
+
+from controllers.telemetria_controller import TelemetriaController
+
+
+@telemetria_routes.route(
+    "/api/obstaculo",
+    methods=["POST"]
+)
+def registrar_obstaculo():
+
+    return TelemetriaController.registrar_obstaculo()

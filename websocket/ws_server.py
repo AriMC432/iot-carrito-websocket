@@ -12,7 +12,6 @@ class WebSocketServer:
     # =========================================
 
     ultima_distancia = 0
-
     ultimo_obstaculo = False
 
     # =========================================
@@ -55,6 +54,44 @@ class WebSocketServer:
                 False
             )
 
+            # =========================================
+            # GUARDAR OBSTACULO
+            # =========================================
+
+            if WebSocketServer.ultimo_obstaculo:
+
+                from config.database import Database
+
+                connection = Database.get_connection()
+
+                try:
+
+                    with connection.cursor() as cursor:
+
+                        sql = """
+                        CALL sp_registrar_obstaculo(
+                            %s,
+                            %s
+                        )
+                        """
+
+                        cursor.execute(sql, (
+
+                            1,
+                            "DETECTADO"
+
+                        ))
+
+                        connection.commit()
+
+                except Exception as e:
+
+                    print(e)
+
+                finally:
+
+                    connection.close()
+
         except Exception as e:
 
             print(e)
@@ -69,7 +106,6 @@ class WebSocketServer:
         WebSocketServer.server = WebsocketServer(
 
             host='0.0.0.0',
-
             port=5050
 
         )
@@ -117,7 +153,6 @@ class WebSocketServer:
                     movimiento_actual = json.dumps(
 
                         movimiento,
-
                         default=str
 
                     )
