@@ -398,3 +398,40 @@ class MovimientoModel:
         finally:
 
             connection.close()
+
+    # =========================================
+    # ULTIMOS ESTATUS
+    # =========================================
+
+    @staticmethod
+    def ultimos_estatus():
+
+        connection = Database.get_connection()
+
+        try:
+
+            with connection.cursor() as cursor:
+
+                cursor.execute(
+
+                    "CALL sp_ultimos_estatus()"
+
+                )
+
+                result = cursor.fetchall()
+
+                return result
+
+        except Exception as e:
+
+            return {
+
+                "status": False,
+
+                "error": str(e)
+
+            }
+
+        finally:
+
+            connection.close()

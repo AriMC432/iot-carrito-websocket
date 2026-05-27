@@ -152,3 +152,14 @@ class MovimientoController:
         )
 
         return jsonify(result)
+    
+        # =========================================
+    # ULTIMOS ESTATUS
+    # =========================================
+
+    @staticmethod
+    def ultimos_estatus():
+
+        result = MovimientoModel.ultimos_estatus()
+
+        return jsonify(result)

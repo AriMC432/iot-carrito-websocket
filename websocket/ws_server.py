@@ -44,21 +44,62 @@ class WebSocketServer:
 
             data = json.loads(message)
 
-            WebSocketServer.ultima_distancia = data.get(
-                "distancia",
-                0
-            )
+            # =========================================
+            # DISTANCIA
+            # =========================================
 
-            WebSocketServer.ultimo_obstaculo = data.get(
-                "obstaculo",
-                False
+            WebSocketServer.ultima_distancia = data.get(
+
+                "distancia",
+
+                0
+
             )
 
             # =========================================
-            # GUARDAR OBSTACULO
+            # OBSTACULO
+            # =========================================
+
+            WebSocketServer.ultimo_obstaculo = data.get(
+
+                "obstaculo",
+
+                False
+
+            )
+
+            # =========================================
+            # ENVIAR OBSTACULO A CLIENTES
             # =========================================
 
             if WebSocketServer.ultimo_obstaculo:
+
+                mensaje_obstaculo = json.dumps({
+
+                    "tipo": "obstaculo",
+
+                    "estatus": "DETECTADO",
+
+                    "distancia":
+                        WebSocketServer.ultima_distancia
+
+                })
+
+                WebSocketServer.server.send_message_to_all(
+
+                    mensaje_obstaculo
+
+                )
+
+                print("")
+                print("=================================")
+                print("OBSTACULO ENVIADO")
+                print(mensaje_obstaculo)
+                print("=================================")
+
+                # =========================================
+                # GUARDAR EN MYSQL
+                # =========================================
 
                 from config.database import Database
 
@@ -153,6 +194,7 @@ class WebSocketServer:
                     movimiento_actual = json.dumps(
 
                         movimiento,
+
                         default=str
 
                     )

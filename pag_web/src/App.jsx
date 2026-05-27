@@ -10,6 +10,9 @@ export default function IoTCarDashboard() {
     const [apiUrl, setApiUrl] = React.useState(
     "http://10.161.176.154:5000"
   );
+
+   const [ultimosEstatus, setUltimosEstatus] = React.useState([]);
+   const [mostrarEstatus, setMostrarEstatus] = React.useState(false);
   // =========================================
   // CONFIG MOTOR
   // =========================================
@@ -250,6 +253,40 @@ const [demosGuardadas, setDemosGuardadas] =
   // =========================================
 
   React.useEffect(() => {
+
+        // =====================================
+        // ULTIMOS ESTATUS
+        // =====================================
+
+        const obtenerUltimosEstatus = async () => {
+
+          try {
+
+            const response = await fetch(
+
+              `${apiUrl}/api/ultimos_estatus`
+
+            );
+
+            const data = await response.json();
+
+            setUltimosEstatus(data);
+
+          } catch(error) {
+
+            console.log(error);
+
+          }
+
+        };
+
+        obtenerUltimosEstatus();
+
+        setInterval(() => {
+
+          obtenerUltimosEstatus();
+
+        }, 2000);
 
     const obtenerTelemetria = async () => {
 
@@ -952,7 +989,7 @@ const ejecutarDemo = async () => {
 
               </div>
           
-                   {/* HISTORIAL OBSTACULOS */}
+          {/* HISTORIAL OBSTACULOS */}
 
           <div className="
             rounded-3xl
@@ -1104,7 +1141,8 @@ const ejecutarDemo = async () => {
               <h2 className="text-2xl font-bold text-cyan-400 mb-5">
                 Control de Velocidad y Tiempo
               </h2>
-                            {/* MOVIMIENTO */}
+                
+              {/* MOVIMIENTO */}
 
               <div className="mb-4">
 
@@ -1201,6 +1239,8 @@ const ejecutarDemo = async () => {
 
                 </div>
 
+                
+
               ))}
 
               {/* BOTON */}
@@ -1222,16 +1262,200 @@ const ejecutarDemo = async () => {
               >
                 Guardar Configuración
               </button>
-
+     
             </div>
 
-        
+          <button
+
+          onClick={() =>
+            setMostrarEstatus(true)
+          }
+
+          className="
+            w-full
+            mt-6
+            bg-cyan-500
+            hover:bg-cyan-400
+            text-black
+            font-bold
+            py-4
+            rounded-2xl
+            text-xl
+            shadow-lg
+          "
+        >
+
+          Ver Últimos 5 Estatus del Dispositivo
+
+        </button>
 
           </div>
 
         </div>
 
-      </div>
+           </div>
+
+      {
+
+        mostrarEstatus && (
+
+          <div className="
+            fixed
+            inset-0
+            bg-black/70
+            flex
+            justify-center
+            items-center
+            z-50
+          ">
+
+            <div className="
+              bg-zinc-950
+              border
+              border-cyan-500
+              rounded-3xl
+              p-8
+              w-[90%]
+              max-w-4xl
+              shadow-2xl
+              shadow-cyan-500/30
+            ">
+
+              <div className="
+                flex
+                justify-between
+                items-center
+                mb-6
+              ">
+
+                <h1 className="
+                  text-3xl
+                  font-bold
+                  text-cyan-400
+                ">
+
+                  Últimos 5 Estatus
+
+                </h1>
+
+                <button
+
+                  onClick={() =>
+                    setMostrarEstatus(false)
+                  }
+
+                  className="
+                    bg-red-500
+                    hover:bg-red-400
+                    px-4
+                    py-2
+                    rounded-xl
+                    text-white
+                    font-bold
+                  "
+                >
+
+                  X
+
+                </button>
+
+              </div>
+
+              <table className="
+                w-full
+                text-white
+              ">
+
+                <thead>
+
+                  <tr className="
+                    border-b
+                    border-cyan-700
+                    text-cyan-300
+                  ">
+
+                    <th className="
+                      p-4
+                      text-left
+                    ">
+
+                      Tipo
+
+                    </th>
+
+                    <th className="
+                      p-4
+                      text-left
+                    ">
+
+                      Evento
+
+                    </th>
+
+                    <th className="
+                      p-4
+                      text-left
+                    ">
+
+                      Fecha
+
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+                <tbody>
+
+                  {
+
+                    ultimosEstatus.map((item,index)=>(
+
+                      <tr
+
+                        key={index}
+
+                        className="
+                          border-b
+                          border-cyan-900
+                        "
+                      >
+
+                        <td className="p-4">
+
+                          {item.tipo}
+
+                        </td>
+
+                        <td className="p-4">
+
+                          {item.evento}
+
+                        </td>
+
+                        <td className="p-4">
+
+                          {item.fecha}
+
+                        </td>
+
+                      </tr>
+
+                    ))
+
+                  }
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
+
+        )
+
+      }
 
     </div>
 

@@ -66,3 +66,14 @@ movimiento_routes.route(
     "/api/ver_demo_detalle/<int:id_demo>",
     methods=["GET"]
 )(MovimientoController.ver_demo_detalle)
+
+# =========================================
+# ULTIMOS ESTATUS
+# =========================================
+
+movimiento_routes.route(
+    "/api/ultimos_estatus",
+    methods=["GET"]
+)(
+    MovimientoController.ultimos_estatus
+)
