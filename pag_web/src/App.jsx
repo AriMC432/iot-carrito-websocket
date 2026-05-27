@@ -8,7 +8,7 @@ export default function IoTCarDashboard() {
 
 
     const [apiUrl, setApiUrl] = React.useState(
-    "http://192.168.137.1:5000"
+    "http://10.161.176.154:5000"
   );
   // =========================================
   // CONFIG MOTOR
@@ -467,15 +467,49 @@ const ejecutarDemo = async () => {
 
   try {
 
-    const response = await fetch(
+    // =====================================
+    // OBTENER DEMOS
+    // =====================================
 
-      `${apiUrl}/api/ver_demo_detalle/1`
+    const demosResponse = await fetch(
+
+      `${apiUrl}/api/ver_demos`
 
     );
 
-    const data = await response.json();
+    const demos = await demosResponse.json();
 
-    for (const movimiento of data) {
+    if(demos.length === 0){
+
+      alert("No hay demos");
+
+      return;
+
+    }
+
+    // =====================================
+    // ULTIMA DEMO
+    // =====================================
+
+    const ultimaDemo = demos[0];
+
+    // =====================================
+    // DETALLE DEMO
+    // =====================================
+
+    const detalleResponse = await fetch(
+
+      `${apiUrl}/api/ver_demo_detalle/${ultimaDemo.id_demo}`
+
+    );
+
+    const detalle = await detalleResponse.json();
+
+    // =====================================
+    // EJECUTAR
+    // =====================================
+
+    for (const movimiento of detalle) {
 
       await ejecutarMovimiento(
 
@@ -1127,12 +1161,7 @@ const ejecutarDemo = async () => {
 
                   <input
                     type="number"
-                    disabled={
-                        campo === "MIA" ||
-                        campo === "MIB" ||
-                        campo === "MDA" ||
-                        campo === "MDB"
-                      }
+                 
                     value={configMotor[campo]}
 
                     onChange={(e) => {
