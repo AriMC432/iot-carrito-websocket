@@ -1,0 +1,214 @@
+#include <ESP8266WiFi.h>
+#include <ArduinoWebsockets.h>
+#include <ArduinoJson.h>
+
+using namespace websockets;
+
+// =========================================
+
+// WIFI
+
+// =========================================
+
+const char* ssid = "INFINITUM282D_2.4";
+
+const char* password = "xxt74T7NtA";
+
+// =========================================
+
+// WEBSOCKET
+
+// =========================================
+
+WebsocketsClient client;
+
+// =========================================
+
+// PINES MOTOR
+
+// =========================================
+// MOTOR A
+#define IN_1 14   // D5
+#define IN_2 4    // D2
+// MOTOR B
+#define IN_3 13   // D7
+#define IN_4 12   // D6
+
+// =========================================
+// DETENER
+// =========================================
+void detener()
+
+{
+analogWrite(IN_1, 0);
+analogWrite(IN_2, 0);
+analogWrite(IN_3, 0);
+analogWrite(IN_4, 0);
+}
+
+// =========================================
+// MOVER CARRO
+// =========================================
+
+void moverCarro(
+int inputIA,
+int inputIB,
+int inputDA,
+int inputDB,
+int tiempo
+)
+{
+Serial.println("");
+Serial.println("===============================");
+Serial.println("EJECUTANDO MOVIMIENTO");
+Serial.println("===============================");
+analogWrite(IN_1, inputIA);
+analogWrite(IN_2, inputIB);
+analogWrite(IN_3, inputDA);
+analogWrite(IN_4, inputDB);
+delay(tiempo);
+detener();
+}
+
+// =========================================
+// SETUP
+// =========================================
+
+void setup()
+{
+Serial.begin(115200);
+
+// =========================================
+// PINES
+// =========================================
+
+pinMode(IN_1, OUTPUT);
+pinMode(IN_2, OUTPUT);
+pinMode(IN_3, OUTPUT);
+pinMode(IN_4, OUTPUT);
+detener();
+
+// =========================================
+// WIFI
+// =========================================
+
+WiFi.begin(ssid, password);
+Serial.println("");
+Serial.println("===============================");
+Serial.println("CONECTANDO WIFI...");
+Serial.println("===============================");
+
+while(WiFi.status() != WL_CONNECTED)
+
+{
+delay(500);
+Serial.print(".");
+}
+
+Serial.println("");
+Serial.println("===============================");
+Serial.println("WIFI CONECTADO");
+Serial.println(WiFi.localIP());
+Serial.println("===============================");
+
+// =========================================
+// WEBSOCKET MENSAJES
+// =========================================
+
+client.onMessage([](WebsocketsMessage message)
+
+{
+
+String data = message.data();
+Serial.println("");
+Serial.println("===============================");
+Serial.println("MENSAJE RECIBIDO");
+Serial.println(data);
+Serial.println("===============================");
+DynamicJsonDocument doc(1024);
+DeserializationError error =
+deserializeJson(doc, data);
+
+if(error)
+
+{
+
+Serial.println("ERROR JSON");
+
+return;
+
+}
+
+int IA = doc["MIA"];
+int IB = doc["MIB"];
+int DA = doc["MDA"];
+int DB = doc["MDB"];
+int tiempo = doc["MITime"];
+
+moverCarro(
+IA,
+IB,
+DA,
+DB,
+tiempo
+);
+});
+
+// =========================================
+// EVENTOS WEBSOCKET
+// =========================================
+
+client.onEvent([](WebsocketsEvent event, String data)
+
+{
+if(event == WebsocketsEvent::ConnectionOpened)
+{
+Serial.println("");
+Serial.println("===============================");
+Serial.println("WEBSOCKET CONECTADO");
+Serial.println("===============================");
+}
+
+else if(event == WebsocketsEvent::ConnectionClosed)
+{
+Serial.println("");
+Serial.println("===============================");
+Serial.println("WEBSOCKET DESCONECTADO");
+Serial.println("===============================");
+}
+});
+
+// =========================================
+// CONECTAR WEBSOCKET
+// =========================================
+
+bool conectado = client.connect(
+"192.168.1.126",
+5050,
+"/"
+);
+
+if(conectado)
+{
+Serial.println("");
+Serial.println("===============================");
+Serial.println("WEBSOCKET OK");
+Serial.println("===============================");
+}
+else
+{
+Serial.println("");
+Serial.println("===============================");
+Serial.println("WEBSOCKET ERROR");
+Serial.println("===============================");
+}
+}
+
+// =========================================
+// LOOP
+// =========================================
+
+void loop()
+{
+client.poll();
+}

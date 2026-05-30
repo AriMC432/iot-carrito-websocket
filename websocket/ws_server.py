@@ -157,7 +157,7 @@ class WebSocketServer:
 
         WebSocketServer.server.set_fn_new_client(
 
-            WebSocketServer.new_client
+        WebSocketServer.new_client
 
         )
 
@@ -226,5 +226,7 @@ class WebSocketServer:
         hilo.daemon = True
 
         hilo.start()
-
+        print("HOST:", "0.0.0.0")
+        print("PORT:", 5050)
+        
         WebSocketServer.server.run_forever()

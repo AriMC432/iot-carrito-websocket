@@ -8,7 +8,7 @@ export default function IoTCarDashboard() {
 
 
     const [apiUrl, setApiUrl] = React.useState(
-    "http://10.161.176.154:5000"
+    "http://192.168.1.126:5000"
   );
 
    const [ultimosEstatus, setUltimosEstatus] = React.useState([]);
@@ -78,6 +78,73 @@ const [secuenciaDemo, setSecuenciaDemo] =
 
 const [demosGuardadas, setDemosGuardadas] =
   React.useState([]);
+const [demoSeleccionada, setDemoSeleccionada] =
+  React.useState("");
+
+const [movimientosDemoSeleccionada, setMovimientosDemoSeleccionada] =
+  React.useState("");
+const cargarDemos = async () => {
+
+  try {
+
+    const response = await fetch(
+      `${apiUrl}/api/ver_demos`
+    );
+
+    const data = await response.json();
+
+    setDemosGuardadas(data);
+
+    if(data.length > 0){
+
+      const ultima = data[0];
+
+      setDemoSeleccionada(
+        ultima.id_demo
+      );
+
+      cargarDetalleDemo(
+        ultima.id_demo
+      );
+
+    }
+
+  } catch(error){
+
+    console.log(error);
+
+  }
+
+};
+
+const cargarDetalleDemo = async (idDemo) => {
+
+  try {
+
+    const response = await fetch(
+
+      `${apiUrl}/api/ver_demo_detalle/${idDemo}`
+
+    );
+
+    const data = await response.json();
+
+    const movimientos =
+      data.map(x => x.id_movimiento);
+
+    setMovimientosDemoSeleccionada(
+
+      movimientos.join(",")
+
+    );
+
+  } catch(error){
+
+    console.log(error);
+
+  }
+
+};
   // =========================================
   // MOVIMIENTOS
   // =========================================
@@ -438,6 +505,14 @@ const ejecutarMovimiento = async (idMovimiento) => {
   }
 
 };
+  // =========================================
+  // USE EFFECT DEMO
+  // =========================================
+React.useEffect(() => {
+
+  cargarDemos();
+
+}, []);
 
 // =========================================
 // GUARDAR DEMO
@@ -484,7 +559,7 @@ const guardarDemo = async () => {
     console.log(data);
 
     alert("Demo guardada en MySQL 😎");
-
+    cargarDemos();
     setNombreDemo("");
 
     setSecuenciaDemo("");
@@ -505,30 +580,15 @@ const ejecutarDemo = async () => {
   try {
 
     // =====================================
-    // OBTENER DEMOS
+    // OBTENER y  ULTIMA DEMOS
     // =====================================
+        if(!demoSeleccionada){
 
-    const demosResponse = await fetch(
+            alert("Selecciona una demo");
 
-      `${apiUrl}/api/ver_demos`
+            return;
 
-    );
-
-    const demos = await demosResponse.json();
-
-    if(demos.length === 0){
-
-      alert("No hay demos");
-
-      return;
-
-    }
-
-    // =====================================
-    // ULTIMA DEMO
-    // =====================================
-
-    const ultimaDemo = demos[0];
+          }
 
     // =====================================
     // DETALLE DEMO
@@ -536,7 +596,7 @@ const ejecutarDemo = async () => {
 
     const detalleResponse = await fetch(
 
-      `${apiUrl}/api/ver_demo_detalle/${ultimaDemo.id_demo}`
+      `${apiUrl}/api/ver_demo_detalle/${demoSeleccionada}`
 
     );
 
@@ -788,78 +848,131 @@ const ejecutarDemo = async () => {
   ">
     Configuración Demo
   </h2>
+<div className="grid md:grid-cols-4 gap-4">
 
-  <div className="
-    grid
-    md:grid-cols-3
-    gap-4
+  <input
+    type="text"
+    value={nombreDemo}
+    onChange={(e)=>
+      setNombreDemo(e.target.value)
+    }
+    placeholder="Nombre demo"
+    className="
+      bg-black
+      border
+      border-yellow-500
+      rounded-2xl
+      p-4
+      text-white
+    "
+  />
+
+  <input
+    type="text"
+    value={secuenciaDemo}
+    onChange={(e)=>
+      setSecuenciaDemo(e.target.value)
+    }
+    placeholder="1,1,8,1,3"
+    className="
+      bg-black
+      border
+      border-yellow-500
+      rounded-2xl
+      p-4
+      text-white
+    "
+  />
+
+  <button
+    onClick={guardarDemo}
+    className="
+      bg-yellow-500
+      hover:bg-yellow-400
+      text-black
+      font-bold
+      rounded-2xl
+      p-4
+    "
+  >
+    Guardar Demo
+  </button>
+
+  <select
+
+    value={demoSeleccionada}
+
+    onChange={(e)=>{
+
+      setDemoSeleccionada(
+        e.target.value
+      );
+
+      cargarDetalleDemo(
+        e.target.value
+      );
+
+    }}
+
+    className="
+      bg-black
+      border
+      border-cyan-500
+      rounded-2xl
+      p-4
+      text-white
+    "
+  >
+
+    {demosGuardadas.map((demo)=>(
+
+      <option
+        key={demo.id_demo}
+        value={demo.id_demo}
+      >
+
+        {demo.nombre}
+
+      </option>
+
+    ))}
+
+  </select>
+
+</div>
+<div className="mt-4">
+
+  <label className="
+    text-cyan-300
+    block
+    mb-2
   ">
 
-    {/* NOMBRE */}
+    Movimientos Demo
 
-    <input
-      type="text"
+  </label>
 
-      value={nombreDemo}
+  <input
 
-      onChange={(e) =>
-        setNombreDemo(e.target.value)
-      }
+    type="text"
 
-      placeholder="Nombre demo"
+    readOnly
 
-      className="
-        bg-black
-        border
-        border-yellow-500
-        rounded-2xl
-        p-4
-        text-white
-      "
-    />
+    value={movimientosDemoSeleccionada}
 
-    {/* SECUENCIA */}
+    className="
+      w-full
+      bg-zinc-900
+      border
+      border-cyan-500
+      rounded-2xl
+      p-4
+      text-cyan-300
+      font-bold
+    "
+  />
 
-      <input
-      type="text"
-
-      value={secuenciaDemo}
-
-      onChange={(e) =>
-        setSecuenciaDemo(e.target.value)
-      }
-
-      placeholder="1,1,8,1,3"
-
-      className="
-        bg-black
-        border
-        border-yellow-500
-        rounded-2xl
-        p-4
-        text-white
-      "
-    />
-
-    {/* BOTON */}
-
-    <button
-     onClick={guardarDemo}
-      className="
-        bg-yellow-500
-        hover:bg-yellow-400
-        text-black
-        font-bold
-        rounded-2xl
-        p-4
-        transition-all
-      "
-    >
-      Guardar Demo
-    </button>
-
-  </div>
-
+</div>
 </div>
                 {/* HISTORIALES */}
 
